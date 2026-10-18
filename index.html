@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Ambassadors Sorting Ceremony</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4, .magic-font {
+            font-family: 'Cinzel', serif;
+        }
+        .magical-glow {
+            box-shadow: 0 0 15px 2px rgba(212, 175, 55, 0.4);
+            transition: box-shadow 0.3s ease;
+        }
+        .magical-glow:hover {
+            box-shadow: 0 0 25px 5px rgba(212, 175, 55, 0.7);
+        }
+        .float-anim {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden-screen {
+            display: none !important;
+        }
+        /* Custom scrollbar for spreadsheet */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center">
+
+    <nav class="w-full bg-slate-900 border-b border-yellow-600/30 p-4 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-2xl magic-font text-yellow-500 font-bold tracking-wider flex items-center gap-2">
+                <span class="text-3xl">✨</span> Ambassador Academy
+            </div>
+            <div class="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0">
+                <button onclick="switchTab('sorting-tab')" id="nav-sorting" class="nav-btn px-4 py-2 rounded text-sm font-semibold bg-yellow-600 text-white shadow-lg transition-colors whitespace-nowrap">Sorting Ceremony</button>
+                <button onclick="switchTab('rosters-tab')" id="nav-rosters" class="nav-btn px-4 py-2 rounded text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors whitespace-nowrap">House Rosters</button>
+                <button onclick="switchTab('spreadsheet-tab')" id="nav-spreadsheet" class="nav-btn px-4 py-2 rounded text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors whitespace-nowrap">Spreadsheet</button>
+                <button onclick="switchTab('teacher-tab')" id="nav-teacher" class="nav-btn px-4 py-2 rounded text-sm font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors whitespace-nowrap">Teacher</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="w-full max-w-6xl p-4 sm:p-6 flex-grow flex flex-col items-center relative">
+        
+        <!-- Error/Message Modal -->
+        <div id="message-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] hidden">
+            <div class="bg-slate-800 p-6 rounded-lg max-w-sm w-full text-center border border-yellow-600/50 magical-glow">
+                <h3 id="modal-title" class="text-xl magic-font text-yellow-500 mb-2">Message</h3>
+                <p id="modal-content" class="text-slate-300 mb-6"></p>
+                <button onclick="closeModal()" class="px-6 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded font-semibold transition-colors">Close</button>
+            </div>
+        </div>
+
+        <!-- Confirm Deletion Modal -->
+        <div id="confirm-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] hidden">
+            <div class="bg-slate-800 p-6 rounded-lg max-w-sm w-full text-center border border-red-600/50 shadow-[0_0_15px_rgba(220,38,38,0.4)]">
+                <h3 class="text-xl magic-font text-red-500 mb-2">Confirm Deletion</h3>
+                <p id="confirm-modal-content" class="text-slate-300 mb-6">Are you sure you want to delete this record?</p>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded font-semibold transition-colors w-full">Cancel</button>
+                    <button onclick="executeDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded font-semibold transition-colors w-full">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: SORTING CEREMONY -->
+        <div id="sorting-tab" class="w-full max-w-4xl flex flex-col items-center w-full tab-content">
+            
+            <!-- Intro Screen -->
+            <div id="screen-intro" class="w-full flex flex-col items-center text-center fade-in">
+                
+                <!-- Magical Sorting Hat SVG -->
+                <svg viewBox="0 0 200 200" class="w-56 h-56 mb-6 float-anim drop-shadow-[0_10px_15px_rgba(212,175,55,0.3)] filter" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Base/Brim -->
+                    <path d="M 10 170 C 40 140, 160 140, 190 170 C 195 175, 185 185, 150 188 C 100 193, 50 193, 10 188 C -5 185, 5 175, 10 170 Z" fill="#3E2723" stroke="#1A1007" stroke-width="3"/>
+                    <path d="M 15 172 C 45 145, 155 145, 185 172 C 188 175, 180 182, 150 185 C 100 189, 50 189, 15 185 C 0 182, 10 175, 15 172 Z" fill="#5D4037"/>
+                    
+                    <!-- Hat Body -->
+                    <path d="M 40 155 C 40 100, 70 70, 120 20 C 135 5, 150 5, 140 25 C 125 55, 135 70, 155 155 Z" fill="#5D4037" stroke="#1A1007" stroke-width="3"/>
+                    
+                    <!-- Highlights and Shadows for 3D effect -->
+                    <path d="M 50 150 C 50 105, 75 80, 120 30 C 125 25, 120 40, 115 50 C 100 80, 70 110, 70 150" fill="#795548" opacity="0.6"/>
+                    <path d="M 145 150 C 130 90, 120 70, 135 35 C 145 20, 150 15, 140 25 C 125 55, 135 70, 155 155" fill="#3E2723" opacity="0.6"/>
+                    
+                    <!-- Wrinkles / Eyebrows -->
+                    <path d="M 60 100 C 75 85, 95 90, 100 105 C 95 95, 75 95, 60 100 Z" fill="#1A1007"/>
+                    <path d="M 140 100 C 125 85, 105 90, 100 105 C 105 95, 125 95, 140 100 Z" fill="#1A1007"/>
+                    
+                    <!-- Deep Set Eyes -->
+                    <path d="M 65 105 C 80 100, 95 105, 90 120 C 80 115, 70 115, 65 105 Z" fill="#000000"/>
+                    <path d="M 135 105 C 120 100, 105 105, 110 120 C 120 115, 130 115, 135 105 Z" fill="#000000"/>
+                    
+                    <!-- Wrinkled Nose/Center Fold -->
+                    <path d="M 95 110 C 100 125, 100 125, 105 110" stroke="#2D1A11" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Mouth (Wide and squiggly) -->
+                    <path d="M 55 145 C 80 130, 120 130, 145 145 C 130 160, 70 160, 55 145 Z" fill="#000000"/>
+                    <!-- Lower Lip -->
+                    <path d="M 60 150 C 80 165, 120 165, 140 150" stroke="#3E2723" stroke-width="5" fill="none" stroke-linecap="round"/>
+                    <!-- Upper Lip Fold -->
+                    <path d="M 50 140 C 80 125, 120 125, 150 140" stroke="#2D1A11" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    
+                    <!-- Extra Hat Folds/Wrinkles -->
+                    <path d="M 80 60 C 95 75, 105 70, 115 60" stroke="#2D1A11" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <path d="M 75 40 C 90 50, 100 45, 110 35" stroke="#2D1A11" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M 45 125 C 55 130, 50 135, 40 140" stroke="#2D1A11" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <path d="M 155 125 C 145 130, 150 135, 160 140" stroke="#2D1A11" stroke-width="3" fill="none" stroke-linecap="round"/>
+                </svg>
+
+                <h1 class="text-4xl md:text-5xl magic-font text-yellow-400 mb-4 text-shadow">Welcome, English Ambassadors!</h1>
+                <p class="text-lg text-slate-300 mb-8 max-w-2xl">Complete this quiz to be sorted into your house team for the year. The Sorting Hat will consider your skills, personality, and preferences.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full mb-10 text-center">
+                    <!-- Houses Overview -->
+                    <div class="bg-slate-900/90 p-6 rounded-xl border border-yellow-600/40 shadow-lg flex flex-col items-center">
+                        <img src="House 1.jpg" alt="Polar Bear Mascot" class="w-full h-40 object-cover rounded-lg mb-4 border border-yellow-600/50 shadow-md">
+                        <h3 class="text-2xl magic-font text-yellow-500 mb-4 font-bold">🏠 HOUSE 1: Digital Content</h3>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Mascot:</strong> Polar Bear<br><strong class="text-white">Leader:</strong> Supichaya Ko</p>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Job:</strong> Make posters, videos,<br>and social media posts.</p>
+                        <p class="text-base text-slate-300"><strong class="text-white">For:</strong> Creative, artistic, and<br>innovative people.</p>
+                    </div>
+                    <div class="bg-slate-900/90 p-6 rounded-xl border border-yellow-600/40 shadow-lg flex flex-col items-center">
+                        <img src="House 2.png" alt="Lion Mascot" class="w-full h-40 object-cover rounded-lg mb-4 border border-yellow-600/50 shadow-md">
+                        <h3 class="text-2xl magic-font text-yellow-500 mb-4 font-bold">🏠 HOUSE 2: Competitions</h3>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Mascot:</strong> Lion<br><strong class="text-white">Leaders:</strong> Derek Leung, Irene Ng</p>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Job:</strong> Organise INTERNAL public speaking<br>competitions, debates, and quizzes.</p>
+                        <p class="text-base text-slate-300"><strong class="text-white">For:</strong> Strategic, competitive,<br>and ambitious people.</p>
+                    </div>
+                    <div class="bg-slate-900/90 p-6 rounded-xl border border-yellow-600/40 shadow-lg flex flex-col items-center">
+                        <img src="House 3.png" alt="Killer Whale Mascot" class="w-full h-40 object-cover rounded-lg mb-4 border border-yellow-600/50 shadow-md">
+                        <h3 class="text-2xl magic-font text-yellow-500 mb-4 font-bold">🏠 HOUSE 3: Morning Assemblies</h3>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Mascot:</strong> Killer Whale<br><strong class="text-white">Leaders:</strong> Grace Lee, Venus Yeung</p>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Job:</strong> Plan and lead English assemblies.<br>Promote English activities.</p>
+                        <p class="text-base text-slate-300"><strong class="text-white">For:</strong> Confident, charismatic,<br>and inspiring people.</p>
+                    </div>
+                    <div class="bg-slate-900/90 p-6 rounded-xl border border-yellow-600/40 shadow-lg flex flex-col items-center">
+                        <img src="House 4.jpg" alt="Owl Mascot" class="w-full h-40 object-cover rounded-lg mb-4 border border-yellow-600/50 shadow-md">
+                        <h3 class="text-2xl magic-font text-yellow-500 mb-4 font-bold">🏠 HOUSE 4: Activities</h3>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Mascot:</strong> Owl<br><strong class="text-white">Leaders:</strong> Verna Ng, Curtis Wong</p>
+                        <p class="text-base text-slate-300 mb-3"><strong class="text-white">Job:</strong> Run fun English<br>games and events.</p>
+                        <p class="text-base text-slate-300"><strong class="text-white">For:</strong> Energetic, friendly,<br>and adventurous people.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 p-6 rounded-xl border border-yellow-600/50 w-full max-w-md magical-glow">
+                    <label for="student-name" class="block text-left text-yellow-500 magic-font mb-2 text-lg">Enter Your Name:</label>
+                    <input type="text" id="student-name" placeholder="E.g. Harry Potter" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mb-4 focus:outline-none focus:border-yellow-500 transition-colors">
+                    <button onclick="startQuiz()" class="w-full py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-slate-900 font-bold rounded text-lg magic-font transition-all transform hover:scale-105 shadow-[0_0_15px_rgba(212,175,55,0.5)]">
+                        Put on the Sorting Hat
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="screen-quiz" class="w-full max-w-2xl hidden-screen flex-col items-center w-full">
+                <div class="w-full bg-slate-800 rounded-full h-2.5 mb-6 border border-slate-700">
+                    <div id="progress-bar" class="bg-yellow-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                
+                <div class="bg-slate-800/90 border border-yellow-600/30 p-6 sm:p-10 rounded-2xl w-full shadow-2xl relative overflow-hidden">
+                    <!-- Decorative corner elements -->
+                    <div class="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-yellow-600/50 rounded-tl-xl m-2"></div>
+                    <div class="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-yellow-600/50 rounded-tr-xl m-2"></div>
+                    
+                    <span id="question-counter" class="text-yellow-600 font-bold text-sm tracking-widest uppercase mb-2 block text-center">Question 1 / 10</span>
+                    <h2 id="question-text" class="text-2xl sm:text-3xl magic-font text-white mb-8 text-center leading-relaxed">Question text goes here?</h2>
+                    
+                    <div id="options-container" class="flex flex-col gap-3">
+                        <!-- Options injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="screen-result" class="w-full flex-col items-center text-center hidden-screen fade-in py-10">
+                <h2 class="text-3xl magic-font text-slate-300 mb-2">The Sorting Hat has decided...</h2>
+                <div class="relative w-72 h-72 mx-auto my-8">
+                    <!-- Magical particles background effect -->
+                    <div class="absolute inset-0 bg-yellow-500/20 rounded-full animate-ping blur-xl"></div>
+                    <img id="result-mascot" src="" alt="House Mascot" class="w-full h-full object-cover rounded-xl border-4 border-yellow-600/80 relative z-10 drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+                </div>
+                
+                <h1 id="result-house-name" class="text-5xl md:text-6xl magic-font font-bold mb-4 text-shadow-lg">House Name</h1>
+                <p id="result-house-desc" class="text-xl text-slate-300 max-w-lg mx-auto mb-8"></p>
+                
+                <button onclick="switchTab('rosters-tab')" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 border border-yellow-600/50 text-yellow-500 rounded font-semibold transition-colors magic-font text-lg shadow-lg">
+                    View House Members
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 2: HOUSE ROSTERS -->
+        <div id="rosters-tab" class="w-full hidden-screen flex-col tab-content">
+            <h2 class="text-3xl magic-font text-yellow-500 text-center mb-8">House Rosters (Max 13 per House)</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-5xl mx-auto">
+                
+                <!-- House 1 -->
+                <div class="bg-slate-800/50 border-t-4 border-blue-500 rounded-lg p-4 flex flex-col h-[500px]">
+                    <div class="text-center border-b border-slate-700 pb-3 mb-3">
+                        <h3 class="text-xl magic-font text-blue-400">Digital Content</h3>
+                        <p class="text-xs text-slate-400">Polar Bear • <span id="count-house1">0</span>/13 Members</p>
+                    </div>
+                    <ul id="list-house1" class="flex-grow overflow-y-auto space-y-2 pr-2">
+                        <!-- Members injected here -->
+                    </ul>
+                </div>
+
+                <!-- House 2 -->
+                <div class="bg-slate-800/50 border-t-4 border-red-500 rounded-lg p-4 flex flex-col h-[500px]">
+                    <div class="text-center border-b border-slate-700 pb-3 mb-3">
+                        <h3 class="text-xl magic-font text-red-400">Competitions</h3>
+                        <p class="text-xs text-slate-400">Lion • <span id="count-house2">0</span>/13 Members</p>
+                    </div>
+                    <ul id="list-house2" class="flex-grow overflow-y-auto space-y-2 pr-2">
+                        <!-- Members injected here -->
+                    </ul>
+                </div>
+
+                <!-- House 3 -->
+                <div class="bg-slate-800/50 border-t-4 border-emerald-500 rounded-lg p-4 flex flex-col h-[500px]">
+                    <div class="text-center border-b border-slate-700 pb-3 mb-3">
+                        <h3 class="text-xl magic-font text-emerald-400">Morning Assemblies</h3>
+                        <p class="text-xs text-slate-400">Killer Whale • <span id="count-house3">0</span>/13 Members</p>
+                    </div>
+                    <ul id="list-house3" class="flex-grow overflow-y-auto space-y-2 pr-2">
+                        <!-- Members injected here -->
+                    </ul>
+                </div>
+
+                <!-- House 4 -->
+                <div class="bg-slate-800/50 border-t-4 border-purple-500 rounded-lg p-4 flex flex-col h-[500px]">
+                    <div class="text-center border-b border-slate-700 pb-3 mb-3">
+                        <h3 class="text-xl magic-font text-purple-400">Activities</h3>
+                        <p class="text-xs text-slate-400">Owl • <span id="count-house4">0</span>/13 Members</p>
+                    </div>
+                    <ul id="list-house4" class="flex-grow overflow-y-auto space-y-2 pr-2">
+                        <!-- Members injected here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: SPREADSHEET -->
+        <div id="spreadsheet-tab" class="w-full hidden-screen flex-col tab-content">
+            <h2 class="text-3xl magic-font text-yellow-500 text-center mb-6">Master Sorting Spreadsheet</h2>
+            <div class="bg-slate-800 rounded-lg shadow-xl overflow-hidden border border-slate-700 w-full">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 border-b border-slate-700">
+                                <th class="p-4 text-yellow-600 magic-font font-semibold">Student Name</th>
+                                <th class="p-4 text-yellow-600 magic-font font-semibold">Assigned House</th>
+                                <th class="p-4 text-yellow-600 magic-font font-semibold">Time Sorted</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spreadsheet-body" class="divide-y divide-slate-700">
+                            <!-- Rows injected here -->
+                            <tr><td colspan="3" class="p-4 text-center text-slate-500">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                 <button onclick="copySpreadsheet()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    Copy Table to Clipboard
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 4: TEACHER DASHBOARD -->
+        <div id="teacher-tab" class="w-full hidden-screen flex-col tab-content">
+            <h2 class="text-3xl magic-font text-yellow-500 text-center mb-6">Teacher Dashboard</h2>
+            
+            <!-- Login View -->
+            <div id="teacher-login-view" class="bg-slate-800 p-8 rounded-xl border border-yellow-600/50 w-full max-w-md mx-auto text-center magical-glow">
+                <h3 class="text-xl magic-font text-yellow-400 mb-4">Restricted Access</h3>
+                <p class="text-slate-300 mb-4 text-sm">Please enter the teacher password to manage student records.</p>
+                <input type="password" id="teacher-password" placeholder="Enter Password" class="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mb-4 focus:outline-none focus:border-yellow-500 transition-colors">
+                <button onclick="checkTeacherPassword()" class="w-full py-2 bg-yellow-600 hover:bg-yellow-500 text-slate-900 font-bold rounded transition-colors">Login</button>
+                <p id="teacher-login-error" class="text-red-400 text-sm mt-2 hidden">Incorrect password.</p>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="teacher-dashboard-view" class="hidden-screen w-full">
+                <div class="bg-slate-800 rounded-lg shadow-xl overflow-hidden border border-slate-700 w-full">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900 border-b border-slate-700">
+                                    <th class="p-4 text-yellow-600 magic-font font-semibold">Student Name</th>
+                                    <th class="p-4 text-yellow-600 magic-font font-semibold">Assigned House</th>
+                                    <th class="p-4 text-yellow-600 magic-font font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacher-table-body" class="divide-y divide-slate-700">
+                                <!-- Rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global state accessible to inline scripts
+        window.allStudents = [];
+        window.db = null;
+        window.auth = null;
+        window.currentUser = null;
+        window.firebaseInitialized = false;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'english-ambassadors-sorting-app';
+        let firebaseConfig;
+
+        try {
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        } catch (e) {
+            console.warn("Could not parse firebase config", e);
+        }
+
+        async function initFirebase() {
+            if (!firebaseConfig) {
+                console.warn("No Firebase config found. Using mock data mode for preview.");
+                setupMockDataMode();
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                window.db = getFirestore(app);
+                window.auth = getAuth(app);
+
+                // Authenticate
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(window.auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(window.auth);
+                }
+
+                onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        window.currentUser = user;
+                        window.firebaseInitialized = true;
+                        startDataSync();
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase init failed:", error);
+                showModal("Error", "Could not connect to the Sorting Hat's magic servers. Please try again later.");
+            }
+        }
+
+        // Setup real-time listener for students collection
+        function startDataSync() {
+            if (!window.currentUser || !window.db) return;
+
+            // RULE 1: Strict paths for public data
+            const studentsRef = collection(window.db, 'artifacts', appId, 'public', 'data', 'students');
+            
+            // RULE 2: Simple query, no orderBy/limit/where that require indexes
+            const q = query(studentsRef);
+
+            onSnapshot(q, (snapshot) => {
+                const students = [];
+                snapshot.forEach((doc) => {
+                    students.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort in memory by timestamp if available
+                students.sort((a, b) => {
+                    const timeA = a.timestamp?.toMillis() || 0;
+                    const timeB = b.timestamp?.toMillis() || 0;
+                    return timeB - timeA; // Newest first for spreadsheet
+                });
+
+                window.allStudents = students;
+                updateUIRostersAndSpreadsheet();
+            }, (error) => {
+                console.error("Error listening to students:", error);
+                // Fallback to mock data mode if cloud read permission is denied
+                setupMockDataMode();
+            });
+        }
+
+        // Expose add function to global scope
+        window.saveStudentToFirebase = async function(studentData) {
+            if (window.firebaseInitialized && window.db && window.currentUser) {
+                try {
+                    const studentsRef = collection(window.db, 'artifacts', appId, 'public', 'data', 'students');
+                    await addDoc(studentsRef, {
+                        ...studentData,
+                        userId: window.currentUser.uid,
+                        timestamp: serverTimestamp()
+                    });
+                    return true;
+                } catch (error) {
+                    console.error("Error saving student:", error);
+                    // Fallback to local mode so the UI still updates even if cloud fails
+                    window.allStudents.push({...studentData, id: Math.random().toString(), timestamp: new Date() });
+                    updateUIRostersAndSpreadsheet();
+                    return false;
+                }
+            } else {
+                // Mock mode fallback
+                window.allStudents.push({...studentData, id: Math.random().toString(), timestamp: new Date() });
+                updateUIRostersAndSpreadsheet();
+                return true;
+            }
+        }
+
+        window.deleteStudentFromFirebase = async function(studentId) {
+            if (window.firebaseInitialized && window.db && window.currentUser) {
+                try {
+                    const docRef = doc(window.db, 'artifacts', appId, 'public', 'data', 'students', studentId);
+                    await deleteDoc(docRef);
+                    return true;
+                } catch (error) {
+                    console.error("Error deleting student:", error);
+                    return false;
+                }
+            } else {
+                // Mock mode fallback
+                window.allStudents = window.allStudents.filter(s => s.id !== studentId);
+                updateUIRostersAndSpreadsheet();
+                return true;
+            }
+        }
+
+        function setupMockDataMode() {
+            window.allStudents = [
+                { name: "Hermione Granger", houseId: "house3", timestamp: new Date() },
+                { name: "Ron Weasley", houseId: "house4", timestamp: new Date() }
+            ];
+            updateUIRostersAndSpreadsheet();
+        }
+
+        initFirebase();
+    </script>
+
+    <script>
+        const HOUSE_LIMIT = 13;
+
+        const houses = {
+            "house1": { id: "house1", name: "Digital Content", mascot: "Polar Bear", color: "blue", class: "text-blue-400", bg: "bg-blue-500/20", img: "House 1.jpg" },
+            "house2": { id: "house2", name: "Competitions", mascot: "Lion", color: "red", class: "text-red-400", bg: "bg-red-500/20", img: "House 2.png" },
+            "house3": { id: "house3", name: "Morning Assemblies", mascot: "Killer Whale", color: "emerald", class: "text-emerald-400", bg: "bg-emerald-500/20", img: "House 3.png" },
+            "house4": { id: "house4", name: "Activities", mascot: "Owl", color: "purple", class: "text-purple-400", bg: "bg-purple-500/20", img: "House 4.jpg" }
+        };
+
+        const questions = [
+            {
+                text: "The Sorting Hat is ready! Which house would you like to join? (Choose your TOP preference)",
+                options: [
+                    { text: "A) Digital Content", value: "house1" },
+                    { text: "B) Competitions", value: "house2" },
+                    { text: "C) Morning Assemblies", value: "house3" },
+                    { text: "D) Activities", value: "house4" }
+                ],
+                isPreference1: true
+            },
+            {
+                text: "If your first choice is full, the Sorting Hat will consider your SECOND preference:",
+                options: [
+                    { text: "A) Digital Content", value: "house1" },
+                    { text: "B) Competitions", value: "house2" },
+                    { text: "C) Morning Assemblies", value: "house3" },
+                    { text: "D) Activities", value: "house4" }
+                ],
+                isPreference2: true
+            },
+            {
+                text: "What kind of activity excites you the most?",
+                options: [
+                    { text: "A) Creating something new - designing posters, videos, or digital art", value: "house1" },
+                    { text: "B) Competing and winning - I love challenges!", value: "house2" },
+                    { text: "C) Speaking in front of a crowd - I enjoy being the centre of attention", value: "house3" },
+                    { text: "D) Playing games and having fun with friends", value: "house4" }
+                ]
+            },
+            {
+                text: "What is your strongest personality trait?",
+                options: [
+                    { text: "A) I am creative and full of ideas", value: "house1" },
+                    { text: "B) I am ambitious and determined", value: "house2" },
+                    { text: "C) I am confident and charismatic", value: "house3" },
+                    { text: "D) I am energetic and friendly", value: "house4" }
+                ]
+            },
+            {
+                text: "Your teacher asks you to lead a school event. What role would you choose?",
+                options: [
+                    { text: "A) The designer - creating all the visuals and promotional materials", value: "house1" },
+                    { text: "B) The organiser - planning the competition rules and structure", value: "house2" },
+                    { text: "C) The host - welcoming everyone and keeping the crowd engaged", value: "house3" },
+                    { text: "D) The facilitator - running the games and making sure everyone has fun", value: "house4" }
+                ]
+            },
+            {
+                text: "What do your friends usually say about you?",
+                options: [
+                    { text: "A) \"You're so artistic and creative!\"", value: "house1" },
+                    { text: "B) \"You're so competitive - you never give up!\"", value: "house2" },
+                    { text: "C) \"You're so confident - you can talk to anyone!\"", value: "house3" },
+                    { text: "D) \"You're so fun - you always make everyone laugh!\"", value: "house4" }
+                ]
+            },
+            {
+                text: "Pick a magical power you would love to have:",
+                options: [
+                    { text: "A) The power to bring any creation to life", value: "house1" },
+                    { text: "B) The power to never lose any competition", value: "house2" },
+                    { text: "C) The power to inspire and move people with your words", value: "house3" },
+                    { text: "D) The power to bring people together and make them happy", value: "house4" }
+                ]
+            },
+            {
+                text: "What is your favourite type of school event?",
+                options: [
+                    { text: "A) Art exhibitions, film screenings, or creative showcases", value: "house1" },
+                    { text: "B) Sports day, debate competitions, or quiz battles", value: "house2" },
+                    { text: "C) Morning assemblies, talent shows, or public speaking events", value: "house3" },
+                    { text: "D) Fun fairs, game booths, or interactive activities", value: "house4" }
+                ]
+            },
+            {
+                text: "How do you prefer to contribute to a team?",
+                options: [
+                    { text: "A) By bringing creative ideas and designs", value: "house1" },
+                    { text: "B) By strategising and planning to win", value: "house2" },
+                    { text: "C) By motivating the team and being the spokesperson", value: "house3" },
+                    { text: "D) By keeping the team spirit high and having fun", value: "house4" }
+                ]
+            },
+            {
+                text: "What type of content do you enjoy creating most?",
+                options: [
+                    { text: "A) Videos/Reels", value: "house1" },
+                    { text: "B) Writing/Poetry", value: "house2" },
+                    { text: "C) Posters/Design", value: "house3" },
+                    { text: "D) Speeches/Presentations", value: "house4" }
+                ]
+            },
+            {
+                text: "In a group project, you are the one who...",
+                options: [
+                    { text: "A) Generates ideas", value: "house1" },
+                    { text: "B) Keeps everyone organized", value: "house2" },
+                    { text: "C) Checks for quality/details", value: "house3" },
+                    { text: "D) Keeps energy high", value: "house4" }
+                ]
+            },
+            {
+                text: "Pick a word that describes you best:",
+                options: [
+                    { text: "A) Creative", value: "house1" },
+                    { text: "B) Reliable", value: "house2" }, // Mapped closely based on prompt logic flow
+                    { text: "C) Precise ----exact and accurate", value: "house3" }, 
+                    { text: "D) Charismatic---- 充滿個人魅力的", value: "house4" } // Mapping to 4 based on prompt sequence, though charism is usually 3. Let's keep A=1, B=2, C=3, D=4 for simplicity.
+                ]
+            }
+        ];
+
+        // --- STATE ---
+        let currentStudentName = "";
+        let currentQuestionIndex = 0;
+        let studentAnswers = []; // Array of houseId values
+
+        // --- UI UTILS ---
+        function showModal(title, content) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-content').innerText = content;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('message-modal').classList.add('hidden');
+        }
+
+        function switchTab(tabId) {
+            // Update buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(btn.id === `nav-${tabId.replace('-tab', '')}`) {
+                    btn.classList.remove('bg-slate-800', 'text-slate-300');
+                    btn.classList.add('bg-yellow-600', 'text-white', 'shadow-lg');
+                } else {
+                    btn.classList.add('bg-slate-800', 'text-slate-300');
+                    btn.classList.remove('bg-yellow-600', 'text-white', 'shadow-lg');
+                }
+            });
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden-screen');
+                tab.classList.remove('flex');
+            });
+            
+            const activeTab = document.getElementById(tabId);
+            activeTab.classList.remove('hidden-screen');
+            activeTab.classList.add('flex');
+        }
+
+        // --- QUIZ LOGIC ---
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            if (!nameInput) {
+                showModal("Missing Name", "The Sorting Hat needs your name before the magic begins!");
+                return;
+            }
+            
+            // Check if user already sorted locally in this session
+            if(window.allStudents && window.allStudents.some(s => s.name.toLowerCase() === nameInput.toLowerCase())) {
+                 showModal("Notice", "It seems a student with this name has already been sorted.");
+                 // We don't block them, but it's a good warning.
+            }
+
+            currentStudentName = nameInput;
+            currentQuestionIndex = 0;
+            studentAnswers = [];
+            
+            document.getElementById('screen-intro').classList.add('hidden-screen');
+            document.getElementById('screen-result').classList.add('hidden-screen');
+            document.getElementById('screen-quiz').classList.remove('hidden-screen');
+            document.getElementById('screen-quiz').classList.add('flex');
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestionIndex];
+            
+            document.getElementById('question-counter').innerText = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+            document.getElementById('question-text').innerText = q.text;
+            
+            // Update Progress bar
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-lg bg-slate-700/50 hover:bg-slate-600 border border-slate-600 hover:border-yellow-500 text-slate-200 transition-all transform hover:-translate-y-1 shadow-md mb-2 flex items-center gap-3";
+                
+                // Add a little magical dot
+                const dot = document.createElement('div');
+                dot.className = "w-3 h-3 rounded-full border border-yellow-500 flex-shrink-0";
+                
+                const textSpan = document.createElement('span');
+                textSpan.innerText = opt.text;
+                
+                btn.appendChild(dot);
+                btn.appendChild(textSpan);
+                
+                btn.onclick = () => selectAnswer(opt.value);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(houseId) {
+            studentAnswers.push(houseId);
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < questions.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        async function finishQuiz() {
+            // Loading state
+            document.getElementById('screen-quiz').classList.add('hidden-screen');
+            document.getElementById('screen-quiz').classList.remove('flex');
+            
+            // Calculate house scores
+            let scores = { house1: 0, house2: 0, house3: 0, house4: 0 };
+            
+            // Q1 is Preference 1, Q2 is Preference 2
+            let pref1 = studentAnswers[0];
+            let pref2 = studentAnswers[1];
+            
+            // Base quiz scores (Q3 onwards)
+            for(let i = 2; i < studentAnswers.length; i++) {
+                scores[studentAnswers[i]] += 10;
+            }
+            
+            // Apply preference weights
+            scores[pref1] += 1000; // Massive weight for top preference
+            scores[pref2] += 500;  // High weight for second preference
+
+            // Sort houses by score descending
+            const sortedHouses = Object.keys(scores).map(id => ({ id, score: scores[id] })).sort((a, b) => b.score - a.score);
+            
+            let assignedHouseId = null;
+            const currentData = window.allStudents || [];
+
+            // Try to assign based on preferences and limits
+            for (let h of sortedHouses) {
+                const membersCount = currentData.filter(s => s.houseId === h.id).length;
+                if (membersCount < HOUSE_LIMIT) {
+                    assignedHouseId = h.id;
+                    break;
+                }
+            }
+            
+            // Absolute fallback if somehow all are full (rare, but possible if > 52 students)
+            if (!assignedHouseId) {
+                assignedHouseId = sortedHouses[0].id; 
+                console.warn("All houses are technically full. Bypassing limit for student.");
+            }
+
+            // Save to database
+            const studentData = {
+                name: currentStudentName,
+                houseId: assignedHouseId,
+                scores: scores // Saving for debugging/transparency if needed
+            };
+            
+            const saved = await window.saveStudentToFirebase(studentData);
+            
+            if(!saved) {
+                showModal("Warning", "Could not save to the cloud securely, but we sorted you locally!");
+            }
+
+            showResult(assignedHouseId);
+        }
+
+        function showResult(houseId) {
+            const house = houses[houseId];
+            const screen = document.getElementById('screen-result');
+            
+            screen.classList.remove('hidden-screen');
+            screen.classList.add('flex');
+            
+            const nameEl = document.getElementById('result-house-name');
+            nameEl.innerText = house.name.toUpperCase() + "!";
+            nameEl.className = `text-5xl md:text-6xl magic-font font-bold mb-4 text-shadow-lg ${house.class}`;
+            
+            document.getElementById('result-house-desc').innerText = `Congratulations ${currentStudentName}! You belong in ${house.name}. Your mascot is the ${house.mascot}.`;
+            
+            // Set the magnificent mascot image
+            const mascotImg = document.getElementById('result-mascot');
+            mascotImg.src = house.img;
+        }
+
+        function updateUIRostersAndSpreadsheet() {
+            const data = window.allStudents || [];
+            
+            // 1. Update Rosters
+            const houseMembers = { house1: [], house2: [], house3: [], house4: [] };
+            data.forEach(s => {
+                if(houseMembers[s.houseId]) {
+                    houseMembers[s.houseId].push(s);
+                }
+            });
+
+            ['house1', 'house2', 'house3', 'house4'].forEach(hId => {
+                const list = document.getElementById(`list-${hId}`);
+                const countSpan = document.getElementById(`count-${hId}`);
+                if(!list || !countSpan) return;
+
+                const members = houseMembers[hId];
+                countSpan.innerText = members.length;
+                
+                // Warn if approaching limit visually
+                if(members.length >= HOUSE_LIMIT) {
+                    countSpan.className = "text-red-500 font-bold";
+                } else {
+                    countSpan.className = "";
+                }
+
+                list.innerHTML = '';
+                members.forEach(m => {
+                    const li = document.createElement('li');
+                    li.className = "p-2 bg-slate-700/50 rounded flex justify-between items-center text-sm border-l-2 " + (
+                        hId === 'house1' ? 'border-blue-500' :
+                        hId === 'house2' ? 'border-red-500' :
+                        hId === 'house3' ? 'border-emerald-500' : 'border-purple-500'
+                    );
+                    li.innerHTML = `<span class="font-semibold text-slate-200">${m.name}</span>`;
+                    list.appendChild(li);
+                });
+
+                // Add empty slots padding
+                const emptySlots = HOUSE_LIMIT - members.length;
+                for(let i=0; i<emptySlots; i++) {
+                     const li = document.createElement('li');
+                     li.className = "p-2 bg-slate-800/30 rounded border border-dashed border-slate-600/50 text-slate-500 text-xs flex items-center justify-center italic";
+                     li.innerText = "Empty Slot";
+                     list.appendChild(li);
+                }
+            });
+
+            // 2. Update Spreadsheet
+            const tbody = document.getElementById('spreadsheet-body');
+            if(!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if(data.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-500">No students sorted yet.</td></tr>';
+                 return;
+            }
+
+            data.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-700/30 transition-colors";
+                
+                const houseInfo = houses[s.houseId];
+                let timeString = "Just now";
+                if(s.timestamp) {
+                    // Firebase timestamp handling
+                    const d = s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+                    timeString = d.toLocaleString();
+                }
+
+                tr.innerHTML = `
+                    <td class="p-4 text-slate-200 font-medium">${s.name}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-xs font-bold ${houseInfo.bg} ${houseInfo.class}">
+                            ${houseInfo.name}
+                        </span>
+                    </td>
+                    <td class="p-4 text-slate-400 text-sm">${timeString}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Trigger teacher dashboard refresh if active
+            if (typeof renderTeacherTable === 'function') {
+                renderTeacherTable();
+            }
+        }
+
+        // Feature: Copy spreadsheet table to clipboard
+        function copySpreadsheet() {
+            const data = window.allStudents || [];
+            if(data.length === 0) {
+                showModal("Info", "No data to copy yet.");
+                return;
+            }
+
+            let tsv = "Student Name\tAssigned House\tTime Sorted\n";
+            data.forEach(s => {
+                const houseName = houses[s.houseId].name;
+                let timeString = "Unknown";
+                if(s.timestamp) {
+                    const d = s.timestamp.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+                    timeString = d.toLocaleString();
+                }
+                tsv += `${s.name}\t${houseName}\t${timeString}\n`;
+            });
+
+            // Fallback copy method since clipboard API might be blocked in iframes
+            const textArea = document.createElement("textarea");
+            textArea.value = tsv;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showModal("Success", "Spreadsheet data copied to clipboard!");
+            } catch (err) {
+                console.error('Failed to copy', err);
+                showModal("Error", "Could not copy to clipboard. Your browser might block this action.");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- TEACHER DASHBOARD LOGIC ---
+        let studentToDeleteId = null;
+
+        function checkTeacherPassword() {
+            const pwd = document.getElementById('teacher-password').value;
+            // Simple front-end password check
+            if (pwd === 'teacher123' || pwd === 'Alohomora') { 
+                document.getElementById('teacher-login-error').classList.add('hidden');
+                document.getElementById('teacher-login-view').classList.add('hidden');
+                document.getElementById('teacher-login-view').style.display = 'none'; // Force hide
+                document.getElementById('teacher-dashboard-view').classList.remove('hidden-screen');
+                document.getElementById('teacher-password').value = '';
+                renderTeacherTable();
+            } else {
+                document.getElementById('teacher-login-error').classList.remove('hidden');
+            }
+        }
+
+        function renderTeacherTable() {
+            const tbody = document.getElementById('teacher-table-body');
+            if(!tbody) return;
+            const data = window.allStudents || [];
+            tbody.innerHTML = '';
+            
+            if(data.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-500">No students sorted yet.</td></tr>';
+                 return;
+            }
+
+            data.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-700/30 transition-colors";
+                const houseInfo = houses[s.houseId];
+                
+                // Escape quotes in name just in case
+                const safeName = s.name.replace(/'/g, "\\'");
+                
+                tr.innerHTML = `
+                    <td class="p-4 text-slate-200 font-medium">${s.name}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded text-xs font-bold ${houseInfo.bg} ${houseInfo.class}">
+                            ${houseInfo.name}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="promptDelete('${s.id}', '${safeName}')" class="px-3 py-1 bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white rounded text-sm transition-colors border border-red-700/50">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function promptDelete(id, name) {
+            studentToDeleteId = id;
+            document.getElementById('confirm-modal-content').innerText = `Are you sure you want to remove "${name}" from the sorting records?`;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            studentToDeleteId = null;
+            document.getElementById('confirm-modal').classList.add('hidden');
+        }
+
+        async function executeDelete() {
+            if (!studentToDeleteId) return;
+            
+            const success = await window.deleteStudentFromFirebase(studentToDeleteId);
+            closeConfirmModal();
+            
+            if (success) {
+                showModal("Success", "Student record has been deleted.");
+            } else {
+                showModal("Error", "Could not delete record. Please try again.");
+            }
+        }
+
+        // Initialize display
+        switchTab('sorting-tab');
+    </script>
+</body>
+</html>
